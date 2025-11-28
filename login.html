@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Login - EduAccess</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #4a6bff;
+      --primary-red: #ff6b6b;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --border-radius: 10px;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #canvas-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .auth-container {
+      width: 100%;
+      max-width: 450px;
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      text-align: center;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin: 20px;
+      transition: all 0.5s ease;
+    }
+    .logo {
+      margin-bottom: 10px;
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, var(--primary-blue), var(--primary-red));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1rem;
+    }
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .input-group {
+      text-align: left;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: var(--border-radius);
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 2px rgba(74, 107, 255, 0.2);
+    }
+    .auth-btn {
+      background: linear-gradient(45deg, var(--primary-blue), var(--primary-red));
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .error-msg {
+      color: red;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas-bg"></canvas>
+
+  <div class="auth-container">
+    <div class="logo">Student Performance Recorder</div>
+    <div class="subtitle">Please login to continue</div>
+
+    <form class="auth-form" id="loginForm">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" required />
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required />
+      </div>
+      <button type="submit" class="auth-btn">Login</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Login logic
+    const loginForm = document.getElementById("loginForm");
+    const errorMsg = document.getElementById("errorMsg");
+
+    loginForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (username === "admin" && password === "admin123") {
+        window.location.href = "index.html";
+      } else {
+        errorMsg.textContent = "Invalid username or password.";
+      }
+    });
+
+    // 3D Background
+    let scene, camera, renderer, particles, objects = [];
+
+    function initBackground() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 30;
+
+      renderer = new THREE.WebGLRenderer({
+        canvas: document.getElementById("canvas-bg"),
+        alpha: true,
+        antialias: true,
+      });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x000000, 0);
+
+      const particleCount = 200;
+      const particleGeometry = new THREE.BufferGeometry();
+      const positions = [];
+      const colors = [];
+
+      const colorPalette = [
+        new THREE.Color(0x4a6bff),
+        new THREE.Color(0xff6b6b),
+        new THREE.Color(0x6bff6b),
+        new THREE.Color(0xffcc6b),
+      ];
+
+      for (let i = 0; i < particleCount; i++) {
+        positions.push(Math.random() * 200 - 100, Math.random() * 200 - 100, Math.random() * 200 - 100);
+        const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+        colors.push(color.r, color.g, color.b);
+      }
+
+      particleGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      particleGeometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+
+      const particleMaterial = new THREE.PointsMaterial({
+        size: 1.5,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.6,
+        sizeAttenuation: true,
+      });
+
+      particles = new THREE.Points(particleGeometry, particleMaterial);
+      scene.add(particles);
+      objects.push(particles);
+
+      for (let i = 0; i < 10; i++) {
+        let shape;
+        const rand = Math.random();
+        if (rand < 0.3) {
+          shape = new THREE.Mesh(new THREE.BoxGeometry(3, 4, 0.5),
+            new THREE.MeshBasicMaterial({ color: colorPalette[Math.floor(Math.random() * colorPalette.length)], transparent: true, opacity: 0.7 }));
+        } else if (rand < 0.6) {
+          shape = new THREE.Mesh(new THREE.PlaneGeometry(4, 6),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }));
+        } else {
+          shape = new THREE.Mesh(new THREE.ConeGeometry(1.5, 1, 4),
+            new THREE.MeshBasicMaterial({ color: colorPalette[Math.floor(Math.random() * colorPalette.length)], transparent: true, opacity: 0.7 }));
+        }
+
+        shape.position.set(Math.random() * 120 - 60, Math.random() * 80 - 40, Math.random() * 100 - 50);
+        shape.rotation.x = Math.random() * Math.PI;
+        shape.rotation.y = Math.random() * Math.PI;
+        shape.userData = { speed: Math.random() * 0.01 + 0.005 };
+        scene.add(shape);
+        objects.push(shape);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        if (particles) {
+          particles.rotation.x += 0.0005;
+          particles.rotation.y += 0.001;
+        }
+
+        objects.forEach((obj) => {
+          if (obj.userData?.speed) {
+            obj.rotation.y += obj.userData.speed;
+            obj.position.y += Math.sin(Date.now() * 0.001 + obj.position.x) * 0.01;
+          }
+        });
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    initBackground();
+  </script>
+</body>
+</html>
