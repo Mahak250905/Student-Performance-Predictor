@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Performance Predictor - Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">📘 Performance Predictor</div>
+    <nav>
+      <ul>
+        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#students">Student Management</a></li>
+        <li><a href="#marks">Marks & Attendance</a></li>
+        <li><a href="#predictions">Predictions</a></li>
+        <li><a href="#reports">Reports</a></li>
+        <li><a href="#analytics">Analytics</a></li>
+        <li><a href="#communication">Communication</a></li>
+        <li><a href="#settings">Settings</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Header -->
+    <header class="header">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <h1>Student Performance Predictor</h1>
+      <div class="user-profile">Admin Panel ▼</div>
+    </header>
+
+    <!-- Dashboard -->
+    <section id="dashboard" class="section">
+      <h2>Dashboard Overview</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h3>Total Students</h3>
+          <div class="stat-value" id="totalStudents">0</div>
+        </div>
+        <div class="card">
+          <h3>Average Score</h3>
+          <div class="stat-value" id="averageScore">0%</div>
+        </div>
+        <div class="card">
+          <h3>Attendance Rate</h3>
+          <div class="stat-value" id="attendanceRate">0%</div>
+        </div>
+        <div class="card">
+          <h3>High Risk Students</h3>
+          <div class="stat-value" id="highRiskStudents">0</div>
+        </div>
+        <div class="card">
+          <h3>Top Performers</h3>
+          <div class="stat-value" id="topPerformers">0</div>
+        </div>
+        <div class="card chart-card">
+          <h3>Performance Analysis</h3>
+          <div class="chart-container">
+            <canvas id="performanceChart" width="300" height="300"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Student Management -->
+    <section id="students" class="section">
+      <h2>Student Management</h2>
+      
+      <div class="actions">
+        <button id="addStudentBtn">Add New Student</button>
+        <button id="bulkUploadBtn">Bulk Upload</button>
+        <button id="exportBtn">Export Data</button>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search students...">
+        <select id="classFilter">
+          <option value="">All Classes</option>
+          <option value="10A">Class 10A</option>
+          <option value="10B">Class 10B</option>
+          <option value="10C">Class 10C</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="studentsTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Class</th>
+              <th>Average Score</th>
+              <th>Attendance</th>
+              <th>Risk Level</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody">
+            <!-- Dynamic content -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Student Form Modal -->
+      <div id="studentModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h3 id="modalTitle">Add New Student</h3>
+          <form id="studentForm">
+            <div class="form-group">
+              <label for="studentName">Full Name</label>
+              <input type="text" id="studentName" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="studentClass">Class</label>
+              <select id="studentClass" name="class" required>
+                <option value="">Select Class</option>
+                <option value="10A">Class 10A</option>
+                <option value="10B">Class 10B</option>
+                <option value="10C">Class 10C</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="mathScore">Math Score</label>
+                <input type="number" id="mathScore" name="mathScore" min="0" max="100" required>
+              </div>
+              <div class="form-group">
+                <label for="scienceScore">Science Score</label>
+                <input type="number" id="scienceScore" name="scienceScore" min="0" max="100" required>
+              </div>
+              <div class="form-group">
+                <label for="englishScore">English Score</label>
+                <input type="number" id="englishScore" name="englishScore" min="0" max="100" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="attendanceRate">Attendance Rate (%)</label>
+              <input type="number" id="attendanceRate" name="attendanceRate" min="0" max="100" required>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+              <button type="submit" class="btn-primary">Save Student</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marks & Attendance -->
+    <section id="marks" class="section">
+      <h2>Marks & Attendance Overview</h2>
+      <div class="performance-grid">
+        <div class="performance-card">
+          <h3>Subject Performance</h3>
+          <div class="subject-stats">
+            <div class="subject-stat">
+              <span class="subject-name">Mathematics</span>
+              <span class="subject-avg" id="mathAvg">0%</span>
+            </div>
+            <div class="subject-stat">
+              <span class="subject-name">Science</span>
+              <span class="subject-avg" id="scienceAvg">0%</span>
+            </div>
+            <div class="subject-stat">
+              <span class="subject-name">English</span>
+              <span class="subject-avg" id="englishAvg">0%</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="performance-card">
+          <h3>Attendance Analysis</h3>
+          <div class="attendance-stats">
+            <div class="attendance-stat">
+              <span class="attendance-label">Excellent (>90%)</span>
+              <span class="attendance-count" id="excellentAttendance">0</span>
+            </div>
+            <div class="attendance-stat">
+              <span class="attendance-label">Good (80-90%)</span>
+              <span class="attendance-count" id="goodAttendance">0</span>
+            </div>
+            <div class="attendance-stat">
+              <span class="attendance-label">Poor (<80%)</span>
+              <span class="attendance-count" id="poorAttendance">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Predictions -->
+    <section id="predictions" class="section">
+      <h2>Performance Predictions</h2>
+      <div class="prediction-controls">
+        <button id="runPredictionsBtn">Run Predictions for All Students</button>
+        <button id="generateRecommendationsBtn">Generate Recommendations</button>
+      </div>
+      <div id="predictionResults" class="prediction-results">
+        <!-- Dynamic prediction results -->
+      </div>
+    </section>
+
+    <!-- Reports -->
+    <section id="reports" class="section">
+      <h2>Reports & Analytics</h2>
+      <div class="report-controls">
+        <button id="generateReportBtn">Generate Performance Report</button>
+        <button id="generateCertificateBtn">Generate Certificates</button>
+        <button id="exportReportBtn">Export Report</button>
+      </div>
+      <div id="reportDisplay" class="report-display">
+        <!-- Dynamic report content -->
+      </div>
+    </section>
+
+    <!-- Analytics -->
+    <section id="analytics" class="section">
+      <h2>Advanced Analytics</h2>
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <h3>Risk Distribution</h3>
+          <div id="riskChart" class="chart-container">
+            <div class="risk-item">
+              <span class="risk-label high-risk">High Risk</span>
+              <span class="risk-count" id="highRiskCount">0</span>
+            </div>
+            <div class="risk-item">
+              <span class="risk-label medium-risk">Medium Risk</span>
+              <span class="risk-count" id="mediumRiskCount">0</span>
+            </div>
+            <div class="risk-item">
+              <span class="risk-label low-risk">Low Risk</span>
+              <span class="risk-count" id="lowRiskCount">0</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="analytics-card">
+          <h3>Class Performance</h3>
+          <div id="classPerformanceChart" class="chart-container">
+            <!-- Dynamic class performance data -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Communication -->
+    <section id="communication" class="section">
+      <h2>Communication Center</h2>
+      <div class="communication-container">
+        <div class="announcement-section">
+          <h3>Send Announcement</h3>
+          <textarea id="announcementInput" placeholder="Type your announcement here..." rows="4"></textarea>
+          <div class="announcement-controls">
+            <div id="charCount">0/500 characters</div>
+            <button id="sendAnnouncementBtn">Send Announcement</button>
+          </div>
+        </div>
+        
+        <div class="message-history">
+          <h3>Recent Messages</h3>
+          <div id="messageHistory" class="message-container">
+            <div class="message admin-message">
+              <span class="message-sender">Admin</span>
+              <span class="message-text">Welcome to the Student Performance Predictor system!</span>
+              <span class="message-time">Just now</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="settings" class="section">
+      <h2>System Settings</h2>
+      <div class="settings-container">
+        <div class="setting-group">
+          <h3>Appearance</h3>
+          <div class="setting-item">
+            <label class="switch">
+              <input type="checkbox" id="darkModeToggle">
+              <span class="slider"></span>
+            </label>
+            <span class="setting-label">Dark Mode</span>
+          </div>
+        </div>
+        
+        <div class="setting-group">
+          <h3>Data Management</h3>
+          <div class="setting-item">
+            <button id="clearDataBtn" class="btn-danger">Clear All Data</button>
+            <span class="setting-description">This will remove all student data permanently</span>
+          </div>
+          <div class="setting-item">
+            <button id="backupDataBtn" class="btn-secondary">Backup Data</button>
+            <span class="setting-description">Download a backup of all student data</span>
+          </div>
+        </div>
+        
+        <div class="setting-group">
+          <h3>System Information</h3>
+          <div class="system-info">
+            <p>Version: 1.0.0</p>
+            <p>Last Updated: <span id="lastUpdated">Never</span></p>
+            <p>Total Records: <span id="totalRecords">0</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Processing...</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
